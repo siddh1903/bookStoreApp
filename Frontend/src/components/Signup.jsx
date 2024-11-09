@@ -2,14 +2,34 @@
 import Login from "./Login"
 import {Link} from "react-router-dom";
 import { useForm } from "react-hook-form"
-
+import axios from "axios";
+import toast from "react-hot-toast";
 function Signup() {
   const {
     register,
     handleSubmit,
     formState: { errors },
   } = useForm()
-  const onSubmit = (data) => console.log(data)
+  const onSubmit = async (data) => {
+    const userInfo = {
+      fullname: data.fullname,
+      email:data.email,
+      password:data.password,
+    }
+    await axios.post("http://localhost:4001/user/signup",userInfo)
+    .then((res)=>{
+      console.log(res.data)
+      if(res.data){
+        toast.success("Signup Successful.")
+      }
+      localStorage.setItem("Users",JSON.stringify(res.data));
+    }).catch((err)=>{
+      if(err.response){
+        console.log(err);
+        toast.error("error:" + err.response.data.message)
+      }
+    })
+  }
   return (
     <>
     <div className="flex h-screen items-center justify-center  ">
@@ -27,9 +47,9 @@ function Signup() {
       <span> Name</span>
       <br/>
       <input
-      {...register("name", { required: true })} 
+      {...register("fullname", { required: true })} 
         type="text"
-        placeholder="enter your name"
+        placeholder="enter your fullname"
         className="w-80 px-3 py-1 border  rounded-md outline-none"/>
         <br/>
         {errors.email && <span className="text-sm text-red-500">This field is required</span>}
